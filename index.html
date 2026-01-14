@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Perhitungan Weight Product</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #ffb6c1 100%); /* Gradient pink putih */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ff1493; /* Deep Pink */
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9); /* Putih transparan */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff69b4; /* Hot Pink */
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        input, select {
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ffb6c1; /* Light Pink */
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #ff1493; /* Deep Pink */
+            outline: none;
+        }
+        .button-section {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            background-color: #ff69b4; /* Hot Pink */
+            color: #ffffff; /* Putih */
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            width: 200px; /* Ukuran sama */
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background-color: #ff1493; /* Deep Pink */
+            transform: translateY(-2px);
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #ffb6c1; /* Light Pink */
+            padding: 12px;
+            text-align: center;
+            font-size: 1em;
+        }
+        th {
+            background-color: #ffe4e1; /* Misty Rose */
+            color: #333;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #fff5f5; /* Pink sangat muda */
+        }
+        .step {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #ffffff; /* Putih */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step h3 {
+            color: #ff1493; /* Deep Pink */
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+        .step h3::before {
+            content: "📊";
+            margin-right: 10px;
+        }
+        .ranking {
+            font-weight: bold;
+            color: #ff69b4; /* Hot Pink */
+            font-size: 1.2em;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #ff69b4;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧮 Aplikasi Perhitungan Metode Weight Product</h1>
+    <div class="container">
+        <div class="input-section">
+            <div class="input-group">
+                <label for="numAlternatives">Jumlah Alternatif:</label>
+                <input type="number" id="numAlternatives" min="2" value="4"> <!-- Default 4 untuk studi kasus -->
+            </div>
+            <div class="input-group">
+                <label for="numCriteria">Jumlah Kriteria:</label>
+                <input type="number" id="numCriteria" min="2" value="4"> <!-- Default 4 untuk studi kasus -->
+            </div>
+        </div>
+
+        <div class="button-section">
+            <button onclick="generateInputs()">Generate Input</button>
+            <button id="calculateButton" onclick="calculateWP()">Hitung Weight Product</button>
+        </div>
+
+        <div id="dynamicInputs"></div>
+
+        <div id="results"></div>
+    </div>
+    <div class="footer">
+        Dibuat dengan ❤️ untuk perhitungan SPK
+    </div>
+
+    <script>
+        function generateInputs() {
+            const numAlternatives = parseInt(document.getElementById('numAlternatives').value);
+            const numCriteria = parseInt(document.getElementById('numCriteria').value);
+            const container = document.getElementById('dynamicInputs');
+            container.innerHTML = '';
+
+            // Input bobot kriteria
+            let html = '<h3>⚖️ Bobot Kriteria (Total harus 1)</h3><table><tr><th>Kriteria</th><th>Bobot</th><th>Tipe</th></tr>';
+            for (let i = 1; i <= numCriteria; i++) {
+                // Default tipe: K1 cost, lainnya benefit
+                let defaultType = (i === 1) ? 'cost' : 'benefit';
+                html += `<tr><td>K${i}</td><td><input type="number" id="weight${i}" step="0.01" min="0" max="1" value="0"></td><td><select id="type${i}"><option value="benefit" ${defaultType === 'benefit' ? 'selected' : ''}>Benefit</option><option value="cost" ${defaultType === 'cost' ? 'selected' : ''}>Cost</option></select></td></tr>`;
+            }
+            html += '</table>';
+
+            // Input matriks keputusan
+            html += '<h3>📋 Matriks Keputusan</h3><table><tr><th>Alternatif</th>';
+            for (let j = 1; j <= numCriteria; j++) {
+                html += `<th>K${j}</th>`;
+            }
+            html += '</tr>';
+            for (let i = 1; i <= numAlternatives; i++) {
+                html += `<tr><td>A${i}</td>`;
+                for (let j = 1; j <= numCriteria; j++) {
+                    html += `<td><input type="number" id="value${i}${j}" step="0.01" value="0"></td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+
+            // Tambahkan button Hitung Weight Product di bawah tabel matriks keputusan
+            html += '<div style="margin-top: 20px; display: flex; justify-content: center;"><button onclick="calculateWP()">Hitung Weight Product</button></div>';
+
+            container.innerHTML = html;
+
+            // Sembunyikan button Hitung Weight Product asli
+            document.getElementById('calculateButton').style.display = 'none';
+        }
+
+        function calculateWP() {
+            const numAlternatives = parseInt(document.getElementById('numAlternatives').value);
+            const numCriteria = parseInt(document.getElementById('numCriteria').value);
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            // Ambil bobot dan tipe
+            let weights = [];
+            let types = [];
+            for (let j = 1; j <= numCriteria; j++) {
+                weights.push(parseFloat(document.getElementById(`weight${j}`).value));
+                types.push(document.getElementById(`type${j}`).value);
+            }
+
+            // Validasi total bobot
+            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+            if (Math.abs(totalWeight - 1) > 0.01) {
+                alert('Total bobot harus 1!');
+                return;
+            }
+
+            // Ambil matriks keputusan
+            let matrix = [];
+            for (let i = 1; i <= numAlternatives; i++) {
+                let row = [];
+                for (let j = 1; j <= numCriteria; j++) {
+                    row.push(parseFloat(document.getElementById(`value${i}${j}`).value));
+                }
+                matrix.push(row);
+            }
+
+            // Hitung pangkat (benefit positif, cost negatif) - tidak ditampilkan
+            let powerWeights = [];
+            for (let j = 0; j < numCriteria; j++) {
+                powerWeights.push(types[j] === 'benefit' ? weights[j] : -weights[j]);
+            }
+
+            // Hitung S_i - tidak ditampilkan detail
+            let S = [];
+            for (let i = 0; i < numAlternatives; i++) {
+                let product = 1;
+                matrix[i].forEach((val, j) => {
+                    product *= Math.pow(val, powerWeights[j]);
+                });
+                S.push(product);
+            }
+
+            // Langkah 2: Perhitungan Nilai S - tabel hasil
+            let html = '<div class="step"><h3>Langkah 2: Perhitungan Nilai S</h3><table><tr><th>Alternatif</th><th>Nilai S</th></tr>';
+            for (let i = 0; i < numAlternatives; i++) {
+                html += `<tr><td>A${i+1}</td><td>${S[i].toFixed(3)}</td></tr>`;
+            }
+            html += '</table></div>';
+
+            // Langkah 3: Total Nilai S - tabel hasil
+            const totalS = S.reduce((sum, s) => sum + s, 0);
+            html += '<div class="step"><h3>Langkah 3: Total Nilai S</h3><table><tr><th>Total S</th></tr><tr><td>' + totalS.toFixed(3) + '</td></tr></table></div>';
+
+            // Langkah 4: Perhitungan Nilai V - tabel hasil
+            let V = [];
+            html += '<div class="step"><h3>Langkah 4: Perhitungan Nilai V</h3><table><tr><th>Alternatif</th><th>S_i</th><th>V_i</th></tr>';
+            for (let i = 0; i < numAlternatives; i++) {
+                let v = S[i] / totalS;
+                V.push(v);
+                html += `<tr><td>A${i+1}</td><td>${S[i].toFixed(3)}</td><td>${v.toFixed(3)}</td></tr>`;
+            }
+            html += '</table></div>';
+
+            // Langkah 5: Ranking - tabel hasil
+            let ranked = V.map((val, idx) => ({val, idx})).sort((a, b) => b.val - a.val);
+            html += '<div class="step"><h3>Langkah 5: Ranking</h3><table><tr><th>Ranking</th><th>Alternatif</th><th>Nilai V</th></tr>';
+            for (let r = 0; r < ranked.length; r++) {
+                html += `<tr><td class="ranking">${r+1}</td><td>A${ranked[r].idx + 1}</td><td>${ranked[r].val.toFixed(3)}</td></tr>`;
+            }
+            html += '</table></div>';
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
